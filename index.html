@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 420px;
+      margin: auto;
+    }
+
+    .product, .cart-item {
+      border: 1px solid #ddd;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+    }
+
+    img {
+      width: 100%;
+      border-radius: 6px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .remove {
+      background: #aaa;
+      margin-top: 5px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Products</h2>
+
+<div id="products"></div>
+
+<h2>Cart</h2>
+<div id="cart"></div>
+
+<script>
+  // ====== Edit this array to add new products ======
+  const products = [
+    {
+      name: "Carolina Dreams",
+      price: "$49.99",
+      image: "https://files.tapstitch.com/hugepod/material/custom_printing/ff41ac793c604ca7ae7cdbc8716891e6.png?x-oss-process=style/hugepod-product-webp",
+      link: "https://buy.stripe.com/4gM4gs7S71Aw2r56uF3VC08"
+    }
+    // Add more product objects here, one per product
+  ];
+  // ================================================
+
+  let cart = [];
+
+  function renderProducts() {
+    const productsDiv = document.getElementById("products");
+    productsDiv.innerHTML = "";
+    products.forEach((p, idx) => {
+      productsDiv.innerHTML += `
+        <div class="product">
+          <img src="${p.image}">
+          <h3>${p.name}</h3>
+          <p>${p.price}</p>
+          <button onclick="addToCart(${idx})">Add to Cart</button>
+        </div>
+      `;
+    });
+  }
+
+  function addToCart(index) {
+    const p = products[index];
+    cart.push(p);
+    renderCart();
+  }
+
+  function renderCart() {
+    const cartDiv = document.getElementById("cart");
+    cartDiv.innerHTML = "";
+
+    cart.forEach((item, index) => {
+      cartDiv.innerHTML += `
+        <div class="cart-item">
+          <img src="${item.image}">
+          <strong>${item.name}</strong>
+          <p>${item.price}</p>
+          <a href="${item.link}" target="_blank">
+            <button>Checkout</button>
+          </a>
+          <button class="remove" onclick="removeItem(${index})">Remove</button>
+        </div>
+      `;
+    });
+  }
+
+  function removeItem(index) {
+    cart.splice(index, 1);
+    renderCart();
+  }
+
+  // initial render
+  renderProducts();
+</script>
+
+</body>
+</html>
