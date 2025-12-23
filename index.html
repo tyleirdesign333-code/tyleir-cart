@@ -2,62 +2,34 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tyleir Apparel</title>
-
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 420px;
+      max-width: 460px;
       margin: auto;
-      background: #000;
-      color: #fff;
+      padding: 10px;
     }
 
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 0;
-    }
-
-    header img {
-      height: 45px;
-    }
-
-    .cart-icon {
-      position: relative;
-      font-size: 26px;
-      cursor: pointer;
-    }
-
-    .cart-count {
-      position: absolute;
-      top: -6px;
-      right: -10px;
-      background: red;
-      color: white;
-      font-size: 12px;
-      padding: 2px 6px;
-      border-radius: 50%;
+    h2 {
+      text-align: center;
     }
 
     .product, .cart-item {
-      border: 1px solid #333;
+      border: 1px solid #ddd;
       padding: 12px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      background: #111;
+      margin-bottom: 16px;
+      border-radius: 10px;
     }
 
-    img.product-img {
+    img {
       width: 100%;
-      border-radius: 6px;
+      border-radius: 8px;
     }
 
     button {
       width: 100%;
       padding: 10px;
-      background: #e10600;
+      background: black;
       color: white;
       border: none;
       border-radius: 6px;
@@ -67,30 +39,17 @@
     }
 
     .remove {
-      background: #666;
-    }
-
-    h2 {
-      text-align: center;
+      background: #999;
     }
   </style>
 </head>
-
 <body>
 
-<header>
-  <img src= https://cdn.prod.website-files.com/68f8e224973a70293bf7ebe7/68f8e614aa9b5f99ad0686b1_(1).png alt="Tyleir Apparel Logo">
+<h2>Tyleir Apparel</h2>
 
-  <div class="cart-icon" onclick="toggleCart()">
-    🛒
-    <span class="cart-count" id="cartCount">0</span>
-  </div>
-</header>
-
-<h2>Products</h2>
 <div id="products"></div>
 
-<h2 id="cartTitle" style="display:none;">Cart</h2>
+<h2>Cart</h2>
 <div id="cart"></div>
 
 <script>
@@ -132,30 +91,40 @@
       link: "https://buy.stripe.com/14AaEQ7S73IEghV5qB3VC0d"
     },
     {
-      name: "Don’t Touch Love",
+      name: "Don't Touch Love",
       price: "$42",
       image: "https://stripe-camo.global.ssl.fastly.net/5c9f682796e056a201bf662a8aaa08b8c698b288314a1554f6651143a8bdb390",
       link: "https://buy.stripe.com/3cIfZagoDa72e9N5qB3VC0e"
+    },
+    {
+      name: "Boxy Fleece, Ohio",
+      price: "$30",
+      image: "https://stripe-camo.global.ssl.fastly.net/7233cfb967769ba039455373b5cc51aa655cf8e0bb875e690f7cb3637931c9a3",
+      link: "https://buy.stripe.com/8x2cMY0pF0wsghV1al3VC09"
+    },
+    {
+      name: "Snow-Washed Hoodie, Smile",
+      price: "$40",
+      image: "https://d1wqzb5bdbcre6.cloudfront.net/08906a3d82c4f1425e67a5999e8a2f37027d5588189d6d1e053aece54b83bd14",
+      link: "https://buy.stripe.com/dRm4gs8Wb5QM2r5dX73VC0f"
+    },
+    {
+      name: "Zip Hoodie, Sun Fade",
+      price: "$50",
+      image: "https://stripe-camo.global.ssl.fastly.net/c97b595c5a9c5bf3dcd11a58359ad0b226b5b56fa976c822dec7db60ad20d335",
+      link: "https://buy.stripe.com/aFa28kegv6UQ4zd6uF3VC0k"
     }
   ];
 
-  let cart = JSON.parse(localStorage.getItem("tyleirCart")) || [];
-
-  function saveCart() {
-    localStorage.setItem("tyleirCart", JSON.stringify(cart));
-    updateCartCount();
-  }
-
-  function updateCartCount() {
-    document.getElementById("cartCount").innerText = cart.length;
-  }
+  let cart = [];
 
   function renderProducts() {
-    const div = document.getElementById("products");
+    const container = document.getElementById("products");
+    container.innerHTML = "";
     products.forEach((p, i) => {
-      div.innerHTML += `
+      container.innerHTML += `
         <div class="product">
-          <img class="product-img" src="${p.image}">
+          <img src="${p.image}">
           <h3>${p.name}</h3>
           <p>${p.price}</p>
           <button onclick="addToCart(${i})">Add to Cart</button>
@@ -164,25 +133,18 @@
     });
   }
 
-  function addToCart(i) {
-    cart.push(products[i]);
-    saveCart();
-    renderCart();
-  }
-
-  function toggleCart() {
-    document.getElementById("cartTitle").style.display = "block";
+  function addToCart(index) {
+    cart.push(products[index]);
     renderCart();
   }
 
   function renderCart() {
-    const cartDiv = document.getElementById("cart");
-    cartDiv.innerHTML = "";
-
+    const c = document.getElementById("cart");
+    c.innerHTML = "";
     cart.forEach((item, i) => {
-      cartDiv.innerHTML += `
+      c.innerHTML += `
         <div class="cart-item">
-          <img class="product-img" src="${item.image}">
+          <img src="${item.image}">
           <strong>${item.name}</strong>
           <p>${item.price}</p>
           <a href="${item.link}" target="_blank">
@@ -192,20 +154,15 @@
         </div>
       `;
     });
-
-    updateCartCount();
   }
 
   function removeItem(i) {
     cart.splice(i, 1);
-    saveCart();
     renderCart();
   }
 
   renderProducts();
-  renderCart();
 </script>
 
 </body>
 </html>
-
