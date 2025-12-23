@@ -7,13 +7,44 @@
       font-family: Arial, sans-serif;
       max-width: 420px;
       margin: auto;
+      background: #000;
+      color: #fff;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+
+    header img {
+      height: 50px;
+    }
+
+    .cart-icon {
+      position: relative;
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    .cart-count {
+      position: absolute;
+      top: -6px;
+      right: -10px;
+      background: red;
+      color: white;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 50%;
     }
 
     .product, .cart-item {
-      border: 1px solid #ddd;
+      border: 1px solid #333;
       padding: 12px;
       margin-bottom: 15px;
       border-radius: 8px;
+      background: #111;
     }
 
     img {
@@ -24,7 +55,7 @@
     button {
       width: 100%;
       padding: 10px;
-      background: black;
+      background: #ff0000;
       color: white;
       border: none;
       border-radius: 6px;
@@ -34,21 +65,32 @@
     }
 
     .remove {
-      background: #aaa;
-      margin-top: 5px;
+      background: #555;
     }
 
     h2 {
       text-align: center;
     }
+
+    #cart {
+      display: none;
+    }
   </style>
 </head>
 <body>
 
+<header>
+  <img src="https://raw.githubusercontent.com/Tyleir_Apparel/tyleir-cart/main/logo.png" alt="Tyleir Apparel">
+  <div class="cart-icon" onclick="toggleCart()">
+    🛒
+    <span class="cart-count" id="cartCount">0</span>
+  </div>
+</header>
+
 <h2>Products</h2>
 <div id="products"></div>
 
-<h2>Cart</h2>
+<h2 onclick="toggleCart()" style="cursor:pointer;">Cart</h2>
 <div id="cart"></div>
 
 <script>
@@ -73,34 +115,40 @@
     }
   ];
 
-  let cart = [];
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  function saveCart() {
+    localStorage.setItem("cart", JSON.stringify(cart));
+    document.getElementById("cartCount").innerText = cart.length;
+  }
 
   function renderProducts() {
-    const productsDiv = document.getElementById("products");
-    productsDiv.innerHTML = "";
-    products.forEach((p, idx) => {
-      productsDiv.innerHTML += `
+    const div = document.getElementById("products");
+    div.innerHTML = "";
+    products.forEach((p, i) => {
+      div.innerHTML += `
         <div class="product">
           <img src="${p.image}">
           <h3>${p.name}</h3>
           <p>${p.price}</p>
-          <button onclick="addToCart(${idx})">Add to Cart</button>
+          <button onclick="addToCart(${i})">Add to Cart</button>
         </div>
       `;
     });
   }
 
-  function addToCart(index) {
-    cart.push(products[index]);
+  function addToCart(i) {
+    cart.push(products[i]);
+    saveCart();
     renderCart();
   }
 
   function renderCart() {
-    const cartDiv = document.getElementById("cart");
-    cartDiv.innerHTML = "";
+    const div = document.getElementById("cart");
+    div.innerHTML = "";
 
-    cart.forEach((item, index) => {
-      cartDiv.innerHTML += `
+    cart.forEach((item, i) => {
+      div.innerHTML += `
         <div class="cart-item">
           <img src="${item.image}">
           <strong>${item.name}</strong>
@@ -108,18 +156,34 @@
           <a href="${item.link}" target="_blank">
             <button>Checkout</button>
           </a>
-          <button class="remove" onclick="removeItem(${index})">Remove</button>
+          <button class="remove" onclick="removeItem(${i})">Remove</button>
         </div>
       `;
     });
+
+    if (cart.length > 0) {
+      div.innerHTML += `
+        <p style="text-align:center;font-size:12px;">
+          Checkout items individually (Stripe limitation)
+        </p>
+      `;
+    }
   }
 
-  function removeItem(index) {
-    cart.splice(index, 1);
+  function removeItem(i) {
+    cart.splice(i, 1);
+    saveCart();
     renderCart();
   }
 
+  function toggleCart() {
+    const cartDiv = document.getElementById("cart");
+    cartDiv.style.display = cartDiv.style.display === "none" ? "block" : "none";
+  }
+
   renderProducts();
+  renderCart();
+  saveCart();
 </script>
 
 </body>
