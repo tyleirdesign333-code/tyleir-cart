@@ -1,167 +1,231 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 460px;
-      margin: auto;
-      padding: 10px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    h2 {
-      text-align: center;
-    }
+<title>Tyleir Apparel</title>
 
-    .product, .cart-item {
-      border: 1px solid #ddd;
-      padding: 12px;
-      margin-bottom: 16px;
-      border-radius: 10px;
-    }
+<style>
+:root {
+  --brand-black: #000;
+  --brand-gray: #f4f4f4;
+}
 
-    img {
-      width: 100%;
-      border-radius: 8px;
-    }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: white;
+}
 
-    button {
-      width: 100%;
-      padding: 10px;
-      background: black;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 8px;
-    }
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #ddd;
+}
 
-    .remove {
-      background: #999;
-    }
-  </style>
+header img {
+  height: 36px;
+}
+
+.cart-icon {
+  position: relative;
+  cursor: pointer;
+}
+
+.cart-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: black;
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 50%;
+}
+
+.container {
+  max-width: 420px;
+  margin: auto;
+  padding: 16px;
+}
+
+.product, .cart-item {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.product img, .cart-item img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.remove {
+  background: #999;
+}
+
+.hidden {
+  display: none;
+}
+</style>
 </head>
+
 <body>
 
-<h2>Tyleir Apparel</h2>
+<header>
+  <img src="logo.png" alt="Tyleir Apparel">
+  <div class="cart-icon" onclick="toggleCart()">
+    🛒
+    <span id="cartCount" class="cart-count">0</span>
+  </div>
+</header>
+
+<div class="container">
 
 <div id="products"></div>
 
-<h2>Cart</h2>
-<div id="cart"></div>
+<div id="cart" class="hidden">
+  <h3>Your Cart</h3>
+  <div id="cartItems"></div>
+</div>
+
+</div>
 
 <script>
-  const products = [
-    {
-      name: "Carolina Dreams",
-      price: "$42.99",
-      image: "https://stripe-camo.global.ssl.fastly.net/8165b8b520892a7816ca3bb3783854edf42883e84adaeb752960501a72c608b6/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56664e7a645a4e58683464554d79515449355555383061454578626d4e6c4e47466930305a4736566e663542",
-      link: "https://buy.stripe.com/9B69AM7S7frmc1F2ep3VC05"
-    },
-    {
-      name: "Original Vintage Frayed Hoodie",
-      price: "$42",
-      image: "https://d1wqzb5bdbcre6.cloudfront.net/d2632ca18b47feb712b76cbe939c9fdd51bd11971b215cf258ab6c2b36a47924",
-      link: "https://buy.stripe.com/4gM4gs7S71Aw2r56uF3VC08"
-    },
-    {
-      name: "Blue Eagle",
-      price: "$40",
-      image: "https://d1wqzb5bdbcre6.cloudfront.net/0404c42750975880a64896795c3095ec10963bb5ba208a90e20ae9b4c4abbe51",
-      link: "https://buy.stripe.com/8x200c1tJ6UQe9N3it3VC06"
-    },
-    {
-      name: "New York Sun Fade",
-      price: "$35",
-      image: "https://stripe-camo.global.ssl.fastly.net/4b7cd92bfb097296e9dc49fdffeffe5feccc429ae11a4ec2f94d9cc02099d3d7",
-      link: "https://buy.stripe.com/6oUaEQ6O392Y3v93it3VC0a"
-    },
-    {
-      name: "Boxy Fleece, Pop",
-      price: "$35",
-      image: "https://stripe-camo.global.ssl.fastly.net/d7fe635ae0a334d1c0c588cbedff5208092202b74a5c182c5b1b66ebf9dba9fb",
-      link: "https://buy.stripe.com/eVqeV6fkz0ws8Pt6uF3VC0c"
-    },
-    {
-      name: "Exclusive Boxy Jacket, Spirit",
-      price: "$45",
-      image: "https://d1wqzb5bdbcre6.cloudfront.net/583c4a1ebc7fc348d2bcc860280cbb6f419111d4403e0c78da603364b8aa4ec6",
-      link: "https://buy.stripe.com/14AaEQ7S73IEghV5qB3VC0d"
-    },
-    {
-      name: "Don't Touch Love",
-      price: "$42",
-      image: "https://stripe-camo.global.ssl.fastly.net/5c9f682796e056a201bf662a8aaa08b8c698b288314a1554f6651143a8bdb390",
-      link: "https://buy.stripe.com/3cIfZagoDa72e9N5qB3VC0e"
-    },
-    {
-      name: "Boxy Fleece, Ohio",
-      price: "$30",
-      image: "https://stripe-camo.global.ssl.fastly.net/7233cfb967769ba039455373b5cc51aa655cf8e0bb875e690f7cb3637931c9a3",
-      link: "https://buy.stripe.com/8x2cMY0pF0wsghV1al3VC09"
-    },
-    {
-      name: "Snow-Washed Hoodie, Smile",
-      price: "$40",
-      image: "https://d1wqzb5bdbcre6.cloudfront.net/08906a3d82c4f1425e67a5999e8a2f37027d5588189d6d1e053aece54b83bd14",
-      link: "https://buy.stripe.com/dRm4gs8Wb5QM2r5dX73VC0f"
-    },
-    {
-      name: "Zip Hoodie, Sun Fade",
-      price: "$50",
-      image: "https://stripe-camo.global.ssl.fastly.net/c97b595c5a9c5bf3dcd11a58359ad0b226b5b56fa976c822dec7db60ad20d335",
-      link: "https://buy.stripe.com/aFa28kegv6UQ4zd6uF3VC0k"
-    }
-  ];
-
-  let cart = [];
-
-  function renderProducts() {
-    const container = document.getElementById("products");
-    container.innerHTML = "";
-    products.forEach((p, i) => {
-      container.innerHTML += `
-        <div class="product">
-          <img src="${p.image}">
-          <h3>${p.name}</h3>
-          <p>${p.price}</p>
-          <button onclick="addToCart(${i})">Add to Cart</button>
-        </div>
-      `;
-    });
+const products = [
+  {
+    name: "Carolina Dreams",
+    price: "$42.99",
+    image: "https://stripe-camo.global.ssl.fastly.net/8165b8b520892a7816ca3bb3783854edf42883e84adaeb752960501a72c608b6/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56664e7a645a4e58683464554d79515449355555383061454578626d4e6c4e47466930305a4736566e663542",
+    link: "https://buy.stripe.com/9B69AM7S7frmc1F2ep3VC05"
+  },
+  {
+    name: "Original Vintage Frayed Hoodie",
+    price: "$42",
+    image: "https://d1wqzb5bdbcre6.cloudfront.net/d2632ca18b47feb712b76cbe939c9fdd51bd11971b215cf258ab6c2b36a47924",
+    link: "https://buy.stripe.com/4gM4gs7S71Aw2r56uF3VC08"
+  },
+  {
+    name: "Blue Eagle",
+    price: "$40",
+    image: "https://d1wqzb5bdbcre6.cloudfront.net/0404c42750975880a64896795c3095ec10963bb5ba208a90e20ae9b4c4abbe51",
+    link: "https://buy.stripe.com/8x200c1tJ6UQe9N3it3VC06"
+  },
+  {
+    name: "New York Sun Fade",
+    price: "$35",
+    image: "https://stripe-camo.global.ssl.fastly.net/4b7cd92bfb097296e9dc49fdffeffe5feccc429ae11a4ec2f94d9cc02099d3d7",
+    link: "https://buy.stripe.com/6oUaEQ6O392Y3v93it3VC0a"
+  },
+  {
+    name: "Boxy Fleece, Pop",
+    price: "$35",
+    image: "https://stripe-camo.global.ssl.fastly.net/d7fe635ae0a334d1c0c588cbedff5208092202b74a5c182c5b1b66ebf9dba9fb",
+    link: "https://buy.stripe.com/eVqeV6fkz0ws8Pt6uF3VC0c"
+  },
+  {
+    name: "Exclusive Boxy Jacket, Spirit",
+    price: "$45",
+    image: "https://d1wqzb5bdbcre6.cloudfront.net/583c4a1ebc7fc348d2bcc860280cbb6f419111d4403e0c78da603364b8aa4ec6",
+    link: "https://buy.stripe.com/14AaEQ7S73IEghV5qB3VC0d"
+  },
+  {
+    name: "Don't Touch Love",
+    price: "$42",
+    image: "https://stripe-camo.global.ssl.fastly.net/5c9f682796e056a201bf662a8aaa08b8c698b288314a1554f6651143a8bdb390",
+    link: "https://buy.stripe.com/3cIfZagoDa72e9N5qB3VC0e"
+  },
+  {
+    name: "Boxy Fleece, Ohio",
+    price: "$30",
+    image: "https://stripe-camo.global.ssl.fastly.net/7233cfb967769ba039455373b5cc51aa655cf8e0bb875e690f7cb3637931c9a3",
+    link: "https://buy.stripe.com/8x2cMY0pF0wsghV1al3VC09"
+  },
+  {
+    name: "Snow-Washed Hoodie, Smile",
+    price: "$40",
+    image: "https://d1wqzb5bdbcre6.cloudfront.net/08906a3d82c4f1425e67a5999e8a2f37027d5588189d6d1e053aece54b83bd14",
+    link: "https://buy.stripe.com/dRm4gs8Wb5QM2r5dX73VC0f"
+  },
+  {
+    name: "Zip Hoodie, Sun Fade",
+    price: "$50",
+    image: "https://stripe-camo.global.ssl.fastly.net/c97b595c5a9c5bf3dcd11a58359ad0b226b5b56fa976c822dec7db60ad20d335",
+    link: "https://buy.stripe.com/aFa28kegv6UQ4zd6uF3VC0k"
   }
+];
 
-  function addToCart(index) {
-    cart.push(products[index]);
-    renderCart();
-  }
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  function renderCart() {
-    const c = document.getElementById("cart");
-    c.innerHTML = "";
-    cart.forEach((item, i) => {
-      c.innerHTML += `
-        <div class="cart-item">
-          <img src="${item.image}">
-          <strong>${item.name}</strong>
-          <p>${item.price}</p>
-          <a href="${item.link}" target="_blank">
-            <button>Checkout</button>
-          </a>
-          <button class="remove" onclick="removeItem(${i})">Remove</button>
-        </div>
-      `;
-    });
-  }
+function renderProducts() {
+  const el = document.getElementById("products");
+  el.innerHTML = "";
+  products.forEach((p, i) => {
+    el.innerHTML += `
+      <div class="product">
+        <img src="${p.image}">
+        <h4>${p.name}</h4>
+        <p>${p.price}</p>
+        <button onclick="addToCart(${i})">Add to Cart</button>
+      </div>`;
+  });
+}
 
-  function removeItem(i) {
-    cart.splice(i, 1);
-    renderCart();
-  }
+function addToCart(i) {
+  cart.push(products[i]);
+  saveCart();
+}
 
-  renderProducts();
+function saveCart() {
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCart();
+}
+
+function updateCart() {
+  document.getElementById("cartCount").innerText = cart.length;
+  const el = document.getElementById("cartItems");
+  el.innerHTML = "";
+  cart.forEach((item, i) => {
+    el.innerHTML += `
+      <div class="cart-item">
+        <img src="${item.image}">
+        <strong>${item.name}</strong>
+        <p>${item.price}</p>
+        <a href="${item.link}" target="_blank">
+          <button>Checkout</button>
+        </a>
+        <button class="remove" onclick="removeItem(${i})">Remove</button>
+      </div>`;
+  });
+}
+
+function removeItem(i) {
+  cart.splice(i, 1);
+  saveCart();
+}
+
+function toggleCart() {
+  document.getElementById("cart").classList.toggle("hidden");
+}
+
+renderProducts();
+updateCart();
 </script>
 
 </body>
