@@ -113,6 +113,10 @@ window.onload = () => {
   // ===== Stripe Setup =====
   const stripe = Stripe("pk_test_pk_live_51SXvqP3WwxnpMbYnexuGjHiQNG0EWQFEtXjz4J6GCEIsgkBGJRm9o6JyFRBQ7m293DRhI7MvlhUfXT9k73HKrbDR00CkM8dx9d"); 
   const backendUrl = "https://tyleir-backend.onrender.com"; 
+  window.addToCart = addToCart;
+window.toggleCart = toggleCart;
+window.changeQuantity = changeQuantity;
+window.removeItem = removeItem;
 
   // ===== Products =====
   const products = [
@@ -165,6 +169,31 @@ window.onload = () => {
     }
     saveCart();
     renderCart();
+    function renderCart() {
+  const cartDiv = document.getElementById("cart-list");
+  cartDiv.innerHTML = "";
+  cart.forEach((item, i) => {
+    cartDiv.innerHTML += `
+      <li class="cart-item">
+        <img class="product-img" src="${item.image}">
+        <strong>${item.name}</strong>
+        <p>$${(item.price/100).toFixed(2)} x ${item.quantity}</p>
+        <div class="quantity-buttons">
+          <button onclick="changeQuantity(${i}, -1)">−</button>
+          <button onclick="changeQuantity(${i}, 1)">+</button>
+          <button class="remove" onclick="removeItem(${i})">Remove</button>
+        </div>
+      </li>
+    `;
+  });
+
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  document.getElementById("cartTotal").innerText = "Total: $" + (total/100).toFixed(2);
+
+  updateCartCount();
+      <p id="cartTotal"></p>
+}
+
   }
 
   function toggleCart() {
