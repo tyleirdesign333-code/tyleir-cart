@@ -73,14 +73,25 @@
     h2 {
       text-align: center;
     }
+
+    .quantity-buttons {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+    }
+
+    .quantity-buttons button {
+      width: 30px;
+      padding: 5px;
+      font-size: 16px;
+    }
   </style>
 </head>
 
 <body>
 
 <header>
-  <img src= https://cdn.prod.website-files.com/68f8e224973a70293bf7ebe7/68f8e614aa9b5f99ad0686b1_(1).png alt="Tyleir Apparel Logo">
-
+  <img src="https://cdn.prod.website-files.com/68f8e224973a70293bf7ebe7/68f8e614aa9b5f99ad0686b1_(1).png" alt="Tyleir Apparel Logo">
   <div class="cart-icon" onclick="toggleCart()">
     🛒
     <span class="cart-count" id="cartCount">0</span>
@@ -91,100 +102,27 @@
 <div id="products"></div>
 
 <h2 id="cartTitle" style="display:none;">Cart</h2>
+<div id="cart">
+  <ul id="cart-list"></ul>
+</div>
+<button id="checkout">Checkout All</button>
+
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-  const stripe = Stripe("pk_test_pk_live_51SXvqP3WwxnpMbYnexuGjHiQNG0EWQFEtXjz4J6GCEIsgkBGJRm9o6JyFRBQ7m293DRhI7MvlhUfXT9k73HKrbDR00CkM8dx9d"); pk_live_51SXvqP3WwxnpMbYnexuGjHiQNG0EWQFEtXjz4J6GCEIsgkBGJRm9o6JyFRBQ7m293DRhI7MvlhUfXT9k73HKrbDR00CkM8dx9d
+window.onload = () => {
+  // ===== Stripe Setup =====
+  const stripe = Stripe("pk_test_XXXXXXXXXXXXXXXXXXXX"); // Replace with your Stripe test publishable key
+  const backendUrl = "https://tyleir-backend.onrender.com"; // Replace with your backend URL
 
-  let cart = [
-    { id: "Hoodie_001", name: "Vintage_Frayed", price: 4200, quantity: 1, image: "https://d1wqzb5bdbcre6.cloudfront.net/d2632ca18b47feb712b76cbe939c9fdd51bd11971b215cf258ab6c2b36a47924/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56666130746f63565a476555746b616e644a5555686c56544e50626d563155544a7630304c506e584765626b/6d65726368616e745f69643d616363745f315358767150335777786e704d62596e26636c69656e743d4d414e414745" },
-    { id: "hoodie_002", name: "Blue_Eagel", price: 4000, quantity: 1, image: "https://d1wqzb5bdbcre6.cloudfront.net/0404c42750975880a64896795c3095ec10963bb5ba208a90e20ae9b4c4abbe51/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56666355687961314a32556c4e536131517857557852555559314d6e4a325a6b4e5530305078364344613773/6d65726368616e745f69643d616363745f315358767150335777786e704d62596e26636c69656e743d4d414e414745" }
+  // ===== Products =====
+  const products = [
+    { name: "Carolina Dreams", price: 4299, image: "https://stripe-camo.global.ssl.fastly.net/8165b8b520892a7816ca3bb3783854edf42883e84adaeb752960501a72c608b6/68747470733a2f2f66696c65732e7374726970652e636f6d/6d616765" },
+    { name: "Original Vintage Frayed Hoodie", price: 4200, image: "https://d1wqzb5bdbcre6.cloudfront.net/d2632ca18b47feb712b76cbe939c9fdd51bd11971b215cf258ab6c2b36a47924" },
+    { name: "Blue Eagle", price: 4000, image: "https://d1wqzb5bdbcre6.cloudfront.net/0404c42750975880a64896795c3095ec10963bb5ba208a90e20ae9b4c4abbe51" },
+    { name: "New York Sun Fade", price: 3500, image: "https://stripe-camo.global.ssl.fastly.net/4b7cd92bfb097296e9dc49fdffeffe5feccc429ae11a4ec2f94d9cc02099d3d7" }
   ];
 
-  const cartList = document.getElementById("cart-list");
-  cart.forEach(item => {
-    const li = document.createElement("li");
-    li.textContent = `${item.name} - $${(item.price/100).toFixed(2)} x ${item.quantity}`;
-    cartList.appendChild(li);
-  });
-
-  document.getElementById("checkout").addEventListener("click", async () => {
-    const email = prompt("Enter your email for checkout:");
-
-    const response = await fetch("https://tyleir-backend.onrender.com/create-one-click-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cart, email })
-    });
-
-    const session = await response.json();
-    stripe.redirectToCheckout({ sessionId: session.id });
-  });
-</script>
-
-<script>
-  const products = [
-    {
-      name: "Carolina Dreams",
-      price: "$42.99",
-      image: "https://stripe-camo.global.ssl.fastly.net/8165b8b520892a7816ca3bb3783854edf42883e84adaeb752960501a72c608b6/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56664e7a645a4e58683464554d79515449355555383061454578626d4e6c4e47466930305a4736566e663542",
-      link: "https://buy.stripe.com/9B69AM7S7frmc1F2ep3VC05"
-    },
-    {
-      name: "Original Vintage Frayed Hoodie",
-      price: "$42",
-      image: "https://d1wqzb5bdbcre6.cloudfront.net/d2632ca18b47feb712b76cbe939c9fdd51bd11971b215cf258ab6c2b36a47924",
-      link: "https://buy.stripe.com/4gM4gs7S71Aw2r56uF3VC08"
-    },
-    {
-      name: "Blue Eagle",
-      price: "$40",
-      image: "https://d1wqzb5bdbcre6.cloudfront.net/0404c42750975880a64896795c3095ec10963bb5ba208a90e20ae9b4c4abbe51",
-      link: "https://buy.stripe.com/8x200c1tJ6UQe9N3it3VC06"
-    },
-    {
-      name: "New York Sun Fade",
-      price: "$35",
-      image: "https://stripe-camo.global.ssl.fastly.net/4b7cd92bfb097296e9dc49fdffeffe5feccc429ae11a4ec2f94d9cc02099d3d7",
-      link: "https://buy.stripe.com/6oUaEQ6O392Y3v93it3VC0a"
-    },
-    {
-      name: "Boxy Fleece, Pop",
-      price: "$35",
-      image: "https://stripe-camo.global.ssl.fastly.net/d7fe635ae0a334d1c0c588cbedff5208092202b74a5c182c5b1b66ebf9dba9fb",
-      link: "https://buy.stripe.com/eVqeV6fkz0ws8Pt6uF3VC0c"
-    },
-    {
-      name: "Exclusive Boxy Jacket, Spirit",
-      price: "$45",
-      image: "https://d1wqzb5bdbcre6.cloudfront.net/583c4a1ebc7fc348d2bcc860280cbb6f419111d4403e0c78da603364b8aa4ec6",
-      link: "https://buy.stripe.com/14AaEQ7S73IEghV5qB3VC0d"
-    },
-    {
-      name: "Don’t Touch Love",
-      price: "$42",
-      image: "https://stripe-camo.global.ssl.fastly.net/5c9f682796e056a201bf662a8aaa08b8c698b288314a1554f6651143a8bdb390",
-      link: "https://buy.stripe.com/3cIfZagoDa72e9N5qB3VC0e"
-  },
-  {
-    name: "Boxy Fleece, Ohio",
-    price: "$30",
-    image: "https://stripe-camo.global.ssl.fastly.net/7233cfb967769ba039455373b5cc51aa655cf8e0bb875e690f7cb3637931c9a3",
-    link: "https://buy.stripe.com/8x2cMY0pF0wsghV1al3VC09"
-  },
-  {
-    name: "Snow-Washed Hoodie, Smile",
-    price: "$40",
-    image: "https://d1wqzb5bdbcre6.cloudfront.net/08906a3d82c4f1425e67a5999e8a2f37027d5588189d6d1e053aece54b83bd14",
-    link: "https://buy.stripe.com/dRm4gs8Wb5QM2r5dX73VC0f"
-  },
-  {
-    name: "Zip Hoodie, Sun Fade",
-    price: "$50",
-    image: "https://stripe-camo.global.ssl.fastly.net/c97b595c5a9c5bf3dcd11a58359ad0b226b5b56fa976c822dec7db60ad20d335",
-    link: "https://buy.stripe.com/aFa28kegv6UQ4zd6uF3VC0k"
-  }
-];
-
+  // ===== Cart =====
   let cart = JSON.parse(localStorage.getItem("tyleirCart")) || [];
 
   function saveCart() {
@@ -193,17 +131,18 @@
   }
 
   function updateCartCount() {
-    document.getElementById("cartCount").innerText = cart.length;
+    document.getElementById("cartCount").innerText = cart.reduce((sum, item) => sum + item.quantity, 0);
   }
 
   function renderProducts() {
     const div = document.getElementById("products");
+    div.innerHTML = "";
     products.forEach((p, i) => {
       div.innerHTML += `
         <div class="product">
           <img class="product-img" src="${p.image}">
           <h3>${p.name}</h3>
-          <p>${p.price}</p>
+          <p>$${(p.price/100).toFixed(2)}</p>
           <button onclick="addToCart(${i})">Add to Cart</button>
         </div>
       `;
@@ -211,7 +150,13 @@
   }
 
   function addToCart(i) {
-    cart.push(products[i]);
+    const product = products[i];
+    const existingItem = cart.find(item => item.id === i);
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      cart.push({ id: i, name: product.name, price: product.price, quantity: 1, image: product.image });
+    }
     saveCart();
     renderCart();
   }
@@ -222,24 +167,30 @@
   }
 
   function renderCart() {
-    const cartDiv = document.getElementById("cart");
+    const cartDiv = document.getElementById("cart-list");
     cartDiv.innerHTML = "";
-
     cart.forEach((item, i) => {
       cartDiv.innerHTML += `
-        <div class="cart-item">
+        <li class="cart-item">
           <img class="product-img" src="${item.image}">
           <strong>${item.name}</strong>
-          <p>${item.price}</p>
-          <a href="${item.link}" target="_blank">
-            <button>Checkout</button>
-          </a>
-          <button class="remove" onclick="removeItem(${i})">Remove</button>
-        </div>
+          <p>$${(item.price/100).toFixed(2)} x ${item.quantity}</p>
+          <div class="quantity-buttons">
+            <button onclick="changeQuantity(${i}, -1)">−</button>
+            <button onclick="changeQuantity(${i}, 1)">+</button>
+            <button class="remove" onclick="removeItem(${i})">Remove</button>
+          </div>
+        </li>
       `;
     });
-
     updateCartCount();
+  }
+
+  function changeQuantity(i, delta) {
+    cart[i].quantity += delta;
+    if (cart[i].quantity < 1) cart.splice(i, 1);
+    saveCart();
+    renderCart();
   }
 
   function removeItem(i) {
@@ -248,8 +199,30 @@
     renderCart();
   }
 
+  // ===== Checkout =====
+  document.getElementById("checkout").addEventListener("click", async () => {
+    if (!cart.length) return alert("Your cart is empty!");
+    const email = prompt("Enter your email for checkout:");
+    if (!email) return;
+
+    try {
+      const response = await fetch(`${backendUrl}/create-one-click-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart, email })
+      });
+      const session = await response.json();
+      stripe.redirectToCheckout({ sessionId: session.id });
+    } catch (err) {
+      console.error(err);
+      alert("Error creating checkout session.");
+    }
+  });
+
+  // Initial render
   renderProducts();
   renderCart();
+};
 </script>
 
 </body>
