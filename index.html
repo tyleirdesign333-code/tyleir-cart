@@ -2,6 +2,8 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tyleir Apparel</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -19,7 +21,7 @@
     }
 
     header img {
-      height: 50px;
+      height: 45px;
     }
 
     .cart-icon {
@@ -47,7 +49,7 @@
       background: #111;
     }
 
-    img {
+    img.product-img {
       width: 100%;
       border-radius: 6px;
     }
@@ -55,7 +57,7 @@
     button {
       width: 100%;
       padding: 10px;
-      background: #ff0000;
+      background: #e10600;
       color: white;
       border: none;
       border-radius: 6px;
@@ -65,22 +67,20 @@
     }
 
     .remove {
-      background: #555;
+      background: #666;
     }
 
     h2 {
       text-align: center;
     }
-
-    #cart {
-      display: none;
-    }
   </style>
 </head>
+
 <body>
 
 <header>
-  <img src="https://raw.githubusercontent.com/Tyleir_Apparel/tyleir-cart/main/logo.png" alt="Tyleir Apparel">
+  <img src= https://cdn.prod.website-files.com/68f8e224973a70293bf7ebe7/68f8e614aa9b5f99ad0686b1_(1).png alt="Tyleir Apparel Logo">
+
   <div class="cart-icon" onclick="toggleCart()">
     🛒
     <span class="cart-count" id="cartCount">0</span>
@@ -90,7 +90,7 @@
 <h2>Products</h2>
 <div id="products"></div>
 
-<h2 onclick="toggleCart()" style="cursor:pointer;">Cart</h2>
+<h2 id="cartTitle" style="display:none;">Cart</h2>
 <div id="cart"></div>
 
 <script>
@@ -98,37 +98,64 @@
     {
       name: "Carolina Dreams",
       price: "$42.99",
-      image: "https://stripe-camo.global.ssl.fastly.net/8165b8b520892a7816ca3bb3783854edf42883e84adaeb752960501a72c608b6/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56664e7a645a4e58683464554d79515449355555383061454578626d4e6c4e47466930305a4736566e663542/6d65726368616e745f69643d616363745f315358767150335777786e704d62596e26636c69656e743d4d414e414745",
+      image: "https://stripe-camo.global.ssl.fastly.net/8165b8b520892a7816ca3bb3783854edf42883e84adaeb752960501a72c608b6/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56664e7a645a4e58683464554d79515449355555383061454578626d4e6c4e47466930305a4736566e663542",
       link: "https://buy.stripe.com/9B69AM7S7frmc1F2ep3VC05"
     },
     {
       name: "Original Vintage Frayed Hoodie",
-      price: "$42.00",
-      image: "https://d1wqzb5bdbcre6.cloudfront.net/d2632ca18b47feb712b76cbe939c9fdd51bd11971b215cf258ab6c2b36a47924/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56666130746f63565a476555746b616e644a5555686c56544e50626d563155544a7630304c506e584765626b/6d65726368616e745f69643d616363745f315358767150335777786e704d62596e26636c69656e743d4d414e414745",
+      price: "$42",
+      image: "https://d1wqzb5bdbcre6.cloudfront.net/d2632ca18b47feb712b76cbe939c9fdd51bd11971b215cf258ab6c2b36a47924",
       link: "https://buy.stripe.com/4gM4gs7S71Aw2r56uF3VC08"
     },
     {
       name: "Blue Eagle",
-      price: "$40.00",
-      image: "https://d1wqzb5bdbcre6.cloudfront.net/0404c42750975880a64896795c3095ec10963bb5ba208a90e20ae9b4c4abbe51/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56666355687961314a32556c4e536131517857557852555559314d6e4a325a6b4e5530305078364344613773/6d65726368616e745f69643d616363745f315358767150335777786e704d62596e26636c69656e743d4d414e414745",
+      price: "$40",
+      image: "https://d1wqzb5bdbcre6.cloudfront.net/0404c42750975880a64896795c3095ec10963bb5ba208a90e20ae9b4c4abbe51",
       link: "https://buy.stripe.com/8x200c1tJ6UQe9N3it3VC06"
+    },
+    {
+      name: "New York Sun Fade",
+      price: "$35",
+      image: "https://stripe-camo.global.ssl.fastly.net/4b7cd92bfb097296e9dc49fdffeffe5feccc429ae11a4ec2f94d9cc02099d3d7",
+      link: "https://buy.stripe.com/6oUaEQ6O392Y3v93it3VC0a"
+    },
+    {
+      name: "Boxy Fleece, Pop",
+      price: "$35",
+      image: "https://stripe-camo.global.ssl.fastly.net/d7fe635ae0a334d1c0c588cbedff5208092202b74a5c182c5b1b66ebf9dba9fb",
+      link: "https://buy.stripe.com/eVqeV6fkz0ws8Pt6uF3VC0c"
+    },
+    {
+      name: "Exclusive Boxy Jacket, Spirit",
+      price: "$45",
+      image: "https://d1wqzb5bdbcre6.cloudfront.net/583c4a1ebc7fc348d2bcc860280cbb6f419111d4403e0c78da603364b8aa4ec6",
+      link: "https://buy.stripe.com/14AaEQ7S73IEghV5qB3VC0d"
+    },
+    {
+      name: "Don’t Touch Love",
+      price: "$42",
+      image: "https://stripe-camo.global.ssl.fastly.net/5c9f682796e056a201bf662a8aaa08b8c698b288314a1554f6651143a8bdb390",
+      link: "https://buy.stripe.com/3cIfZagoDa72e9N5qB3VC0e"
     }
   ];
 
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  let cart = JSON.parse(localStorage.getItem("tyleirCart")) || [];
 
   function saveCart() {
-    localStorage.setItem("cart", JSON.stringify(cart));
+    localStorage.setItem("tyleirCart", JSON.stringify(cart));
+    updateCartCount();
+  }
+
+  function updateCartCount() {
     document.getElementById("cartCount").innerText = cart.length;
   }
 
   function renderProducts() {
     const div = document.getElementById("products");
-    div.innerHTML = "";
     products.forEach((p, i) => {
       div.innerHTML += `
         <div class="product">
-          <img src="${p.image}">
+          <img class="product-img" src="${p.image}">
           <h3>${p.name}</h3>
           <p>${p.price}</p>
           <button onclick="addToCart(${i})">Add to Cart</button>
@@ -143,14 +170,19 @@
     renderCart();
   }
 
+  function toggleCart() {
+    document.getElementById("cartTitle").style.display = "block";
+    renderCart();
+  }
+
   function renderCart() {
-    const div = document.getElementById("cart");
-    div.innerHTML = "";
+    const cartDiv = document.getElementById("cart");
+    cartDiv.innerHTML = "";
 
     cart.forEach((item, i) => {
-      div.innerHTML += `
+      cartDiv.innerHTML += `
         <div class="cart-item">
-          <img src="${item.image}">
+          <img class="product-img" src="${item.image}">
           <strong>${item.name}</strong>
           <p>${item.price}</p>
           <a href="${item.link}" target="_blank">
@@ -161,13 +193,7 @@
       `;
     });
 
-    if (cart.length > 0) {
-      div.innerHTML += `
-        <p style="text-align:center;font-size:12px;">
-          Checkout items individually (Stripe limitation)
-        </p>
-      `;
-    }
+    updateCartCount();
   }
 
   function removeItem(i) {
@@ -176,15 +202,10 @@
     renderCart();
   }
 
-  function toggleCart() {
-    const cartDiv = document.getElementById("cart");
-    cartDiv.style.display = cartDiv.style.display === "none" ? "block" : "none";
-  }
-
   renderProducts();
   renderCart();
-  saveCart();
 </script>
 
 </body>
 </html>
+
