@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tyleir Apparel</title>
+
+  <script src="https://js.stripe.com/v3/"></script>
 
   <style>
     body {
@@ -12,41 +15,47 @@
       background: #000;
       color: #fff;
     }
+
     header {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      padding: 10px 0;
+      align-items: center;
+      padding: 12px 0;
     }
+
     header img {
       height: 45px;
     }
+
     .cart-icon {
-      position: relative;
-      font-size: 26px;
       cursor: pointer;
+      font-size: 24px;
+      position: relative;
     }
+
     .cart-count {
       position: absolute;
       top: -6px;
       right: -10px;
       background: red;
-      color: white;
+      color: #fff;
       font-size: 12px;
       padding: 2px 6px;
       border-radius: 50%;
     }
+
     .product, .cart-item {
-      border: 1px solid #333;
+      background: #111;
+      border-radius: 8px;
       padding: 12px;
       margin-bottom: 15px;
-      border-radius: 8px;
-      background: #111;
     }
-    img.product-img {
+
+    img {
       width: 100%;
       border-radius: 6px;
     }
+
     button {
       width: 100%;
       padding: 10px;
@@ -58,15 +67,13 @@
       cursor: pointer;
       margin-top: 8px;
     }
-    .remove {
-      background: #666;
-    }
-    .quantity-buttons {
-      display: flex;
-      gap: 6px;
+
+    select {
+      width: 100%;
+      padding: 8px;
       margin-top: 6px;
+      border-radius: 6px;
     }
-    h2 { text-align: center; }
   </style>
 </head>
 
@@ -82,125 +89,92 @@
 <h2>Products</h2>
 <div id="products"></div>
 
-<h2 id="cartTitle" style="display:none;">Cart</h2>
-<ul id="cart-list"></ul>
-<p id="cartTotal"></p>
-<button id="checkout">Checkout All</button>
+<h2 id="cartTitle" style="display:none;">Your Cart</h2>
+<div id="cart"></div>
 
-<script src="https://js.stripe.com/v3/"></script>
+<button onclick="checkout()">Checkout All</button>
+
 <script>
-/* ================= STRIPE ================= */
-const stripe = Stripe("pk_test_REPLACE_WITH_YOUR_REAL_TEST_KEY");
-const backendUrl = "https://tyleir-backend.onrender.com";
+const stripe = Stripe("pk_test_pk_live_51SXvqP3WwxnpMbYnexuGjHiQNG0EWQFEtXjz4J6GCEIsgkBGJRm9o6JyFRBQ7m293DRhI7MvlhUfXT9k73HKrbDR00CkM8dx9d");
+const BACKEND_URL = "https://tyleir-backend.onrender.com/";
 
-/* ================= PRODUCTS ================= */
 const products = [
-  { name:"Carolina Dreams", price:4299, image:"https://stripe-camo.global.ssl.fastly.net/8165b8b520892a7816ca3bb3783854edf42883e84adaeb752960501a72c608b6" },
-  { name:"Original Vintage Frayed Hoodie", price:4200, image:"https://d1wqzb5bdbcre6.cloudfront.net/d2632ca18b47feb712b76cbe939c9fdd51bd11971b215cf258ab6c2b36a47924" },
-  { name:"Blue Eagle", price:4000, image:"https://d1wqzb5bdbcre6.cloudfront.net/0404c42750975880a64896795c3095ec10963bb5ba208a90e20ae9b4c4abbe51" },
-  { name:"New York Sun Fade", price:3500, image:"https://stripe-camo.global.ssl.fastly.net/4b7cd92bfb097296e9dc49fdffeffe5feccc429ae11a4ec2f94d9cc02099d3d7" },
-  { name:"Boxy Fleece, Pop", price:3500, image:"https://stripe-camo.global.ssl.fastly.net/d7fe635ae0a334d1c0c588cbedff5208092202b74a5c182c5b1b66ebf9dba9fb" },
-  { name:"Exclusive Boxy Jacket, Spirit", price:4500, image:"https://d1wqzb5bdbcre6.cloudfront.net/583c4a1ebc7fc348d2bcc860280cbb6f419111d4403e0c78da603364b8aa4ec6" },
-  { name:"Don't Touch Love", price:4200, image:"https://stripe-camo.global.ssl.fastly.net/5c9f682796e056a201bf662a8aaa08b8c698b288314a1554f6651143a8bdb390" },
-  { name:"Boxy Fleece, Ohio", price:3000, image:"https://stripe-camo.global.ssl.fastly.net/7233cfb967769ba039455373b5cc51aa655cf8e0bb875e690f7cb3637931c9a3" },
-  { name:"Snow-Washed Hoodie, Smile", price:4000, image:"https://d1wqzb5bdbcre6.cloudfront.net/08906a3d82c4f1425e67a5999e8a2f37027d5588189d6d1e053aece54b83bd14" },
-  { name:"Zip Hoodie, Sun Fade", price:5000, image:"https://stripe-camo.global.ssl.fastly.net/c97b595c5a9c5bf3dcd11a58359ad0b226b5b56fa976c822dec7db60ad20d335" }
+  {
+    name: "Carolina Dreams",
+    priceId: "price_3500",
+    image: "https://d1wqzb5bdbcre6.cloudfront.net/8165b8b520892a7816ca3bb3783854edf42883e84adaeb752960501a72c608b6/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56664e7a645a4e58683464554d79515449355555383061454578626d4e6c4e47466930305a4736566e663542/6d65726368616e745f69643d616363745f315358767150335777786e704d62596e26636c69656e743d50524f445543545f415049"
+  },
+  {
+    name: "Original Vintage Frayed Hoodie",
+    priceId: "price_4200",
+    image: "https://d1wqzb5bdbcre6.cloudfront.net/d2632ca18b47feb712b76cbe939c9fdd51bd11971b215cf258ab6c2b36a47924/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56666130746f63565a476555746b616e644a5555686c56544e50626d563155544a7630304c506e584765626b/6d65726368616e745f69643d616363745f315358767150335777786e704d62596e26636c69656e743d4d414e414745"
+  },
+  {
+    name: "Blue eagle jacket",
+    priceId: "price_4000",
+    image: "https://d1wqzb5bdbcre6.cloudfront.net/0404c42750975880a64896795c3095ec10963bb5ba208a90e20ae9b4c4abbe51/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56666355687961314a32556c4e536131517857557852555559314d6e4a325a6b4e5530305078364344613773/6d65726368616e745f69643d616363745f315358767150335777786e704d62596e26636c69656e743d4d414e414745"
+  },
+  {
+    name: "New york sun fade",
+    priceId: "price_3500",
+    image: "https://d1wqzb5bdbcre6.cloudfront.net/4b7cd92bfb097296e9dc49fdffeffe5feccc429ae11a4ec2f94d9cc02099d3d7/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56664f546c4f55553175566d686163574e485a474e574e567057555664354f577871303032654f5147637a50/6d65726368616e745f69643d616363745f315358767150335777786e704d62596e26636c69656e743d50524f445543545f415049"
+  },
 ];
 
-/* ================= CART ================= */
-let cart = JSON.parse(localStorage.getItem("tyleirCart")) || [];
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 function saveCart() {
-  localStorage.setItem("tyleirCart", JSON.stringify(cart));
-  updateCartCount();
-}
-
-function updateCartCount() {
-  document.getElementById("cartCount").innerText =
-    cart.reduce((s,i)=>s+i.quantity,0);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  document.getElementById("cartCount").innerText = cart.reduce((s,i)=>s+i.qty,0);
 }
 
 function renderProducts() {
-  const div = document.getElementById("products");
-  div.innerHTML = "";
+  const el = document.getElementById("products");
+  el.innerHTML = "";
   products.forEach((p,i)=>{
-    div.innerHTML += `
+    el.innerHTML += `
       <div class="product">
-        <img class="product-img" src="${p.image}">
+        <img src="${p.image}">
         <h3>${p.name}</h3>
-        <p>$${(p.price/100).toFixed(2)}</p>
+        <select id="size-${i}">
+          <option>S</option><option>M</option>
+          <option>L</option><option>XL</option><option>XXL</option>
+        </select>
         <button onclick="addToCart(${i})">Add to Cart</button>
       </div>`;
   });
 }
 
 function addToCart(i) {
-  const existing = cart.find(item=>item.id===i);
-  if(existing) existing.quantity++;
-  else cart.push({id:i, ...products[i], quantity:1});
+  const size = document.getElementById(`size-${i}`).value;
+  cart.push({ priceId: products[i].priceId, size, qty: 1 });
   saveCart();
-  renderCart();
 }
 
-function renderCart() {
-  const ul = document.getElementById("cart-list");
-  ul.innerHTML = "";
-  let total = 0;
-  cart.forEach((item,i)=>{
-    total += item.price * item.quantity;
-    ul.innerHTML += `
-      <li class="cart-item">
-        <strong>${item.name}</strong>
-        <p>$${(item.price/100).toFixed(2)} × ${item.quantity}</p>
-        <div class="quantity-buttons">
-          <button onclick="changeQuantity(${i},-1)">−</button>
-          <button onclick="changeQuantity(${i},1)">+</button>
-          <button class="remove" onclick="removeItem(${i})">Remove</button>
-        </div>
-      </li>`;
+function toggleCart() {
+  document.getElementById("cartTitle").style.display = "block";
+  const el = document.getElementById("cart");
+  el.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      ${item.size} × ${item.qty}
+    </div>`).join("");
+}
+
+async function checkout() {
+  if (!cart.length) return alert("Cart is empty");
+
+  const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ cart })
   });
-  document.getElementById("cartTotal").innerText =
-    "Total: $" + (total/100).toFixed(2);
+
+  const { sessionId } = await res.json();
+  stripe.redirectToCheckout({ sessionId });
 }
 
-function changeQuantity(i,delta){
-  cart[i].quantity += delta;
-  if(cart[i].quantity<1) cart.splice(i,1);
-  saveCart(); renderCart();
-}
-function removeItem(i){
-  cart.splice(i,1);
-  saveCart(); renderCart();
-}
-function toggleCart(){
-  document.getElementById("cartTitle").style.display="block";
-  renderCart();
-}
-
-/* ================= CHECKOUT ================= */
-document.getElementById("checkout").onclick = async ()=>{
-  if(!cart.length) return alert("Cart is empty");
-  const email = prompt("Enter email for checkout:");
-  if(!email) return;
-  const res = await fetch(`${backendUrl}/create-one-click-session`,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({cart,email})
-  });
-  const session = await res.json();
-  stripe.redirectToCheckout({sessionId:session.id});
-};
-
-/* expose functions */
-window.addToCart = addToCart;
-window.toggleCart = toggleCart;
-window.changeQuantity = changeQuantity;
-window.removeItem = removeItem;
-
-/* init */
 renderProducts();
-renderCart();
-updateCartCount();
+saveCart();
 </script>
 
 </body>
