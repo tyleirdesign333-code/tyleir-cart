@@ -1,181 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tyleir Apparel</title>
-
-  <script src="https://js.stripe.com/v3/"></script>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 420px;
-      margin: auto;
-      background: #000;
-      color: #fff;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 0;
-    }
-
-    header img {
-      height: 45px;
-    }
-
-    .cart-icon {
-      cursor: pointer;
-      font-size: 24px;
-      position: relative;
-    }
-
-    .cart-count {
-      position: absolute;
-      top: -6px;
-      right: -10px;
-      background: red;
-      color: #fff;
-      font-size: 12px;
-      padding: 2px 6px;
-      border-radius: 50%;
-    }
-
-    .product, .cart-item {
-      background: #111;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 15px;
-    }
-
-    img {
-      width: 100%;
-      border-radius: 6px;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      background: #e10600;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-
-    select {
-      width: 100%;
-      padding: 8px;
-      margin-top: 6px;
-      border-radius: 6px;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
 
-<header>
-  <img src="https://cdn.prod.website-files.com/68f8e224973a70293bf7ebe7/68f8e614aa9b5f99ad0686b1_(1).png">
-  <div class="cart-icon" onclick="toggleCart()">
-    🛒 <span class="cart-count" id="cartCount">0</span>
+<header class="header">
+  <h1>TYLEIR APPAREL</h1>
+  <div class="cart-icon">
+    🛒 <span id="cart-count">0</span>
   </div>
 </header>
 
-<h2>Products</h2>
-<div id="products"></div>
+<section class="products">
 
-<h2 id="cartTitle" style="display:none;">Your Cart</h2>
-<div id="cart"></div>
+  <div class="product">
+    <h2>T-Shirt</h2>
+    <p>$25.00</p>
 
-<button onclick="checkout()">Checkout All</button>
+    <select class="size-select">
+      <option value="">Select Size</option>
+      <option>S</option><option>M</option>
+      <option>L</option><option>XL</option><option>XXL</option>
+    </select>
 
-<script>
-const stripe = Stripe("pk_test_pk_live_51SXvqP3WwxnpMbYnexuGjHiQNG0EWQFEtXjz4J6GCEIsgkBGJRm9o6JyFRBQ7m293DRhI7MvlhUfXT9k73HKrbDR00CkM8dx9d");
-const BACKEND_URL = "https://tyleir-backend.onrender.com/";
+    <button onclick="addToCart('tshirt', 25)">Add to Cart</button>
+  </div>
 
-const products = [
-  {
-    name: "Carolina Dreams",
-    priceId: "price_3500",
-    image: "https://d1wqzb5bdbcre6.cloudfront.net/8165b8b520892a7816ca3bb3783854edf42883e84adaeb752960501a72c608b6/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56664e7a645a4e58683464554d79515449355555383061454578626d4e6c4e47466930305a4736566e663542/6d65726368616e745f69643d616363745f315358767150335777786e704d62596e26636c69656e743d50524f445543545f415049"
-  },
-  {
-    name: "Original Vintage Frayed Hoodie",
-    priceId: "price_4200",
-    image: "https://d1wqzb5bdbcre6.cloudfront.net/d2632ca18b47feb712b76cbe939c9fdd51bd11971b215cf258ab6c2b36a47924/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56666130746f63565a476555746b616e644a5555686c56544e50626d563155544a7630304c506e584765626b/6d65726368616e745f69643d616363745f315358767150335777786e704d62596e26636c69656e743d4d414e414745"
-  },
-  {
-    name: "Blue eagle jacket",
-    priceId: "price_4000",
-    image: "https://d1wqzb5bdbcre6.cloudfront.net/0404c42750975880a64896795c3095ec10963bb5ba208a90e20ae9b4c4abbe51/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56666355687961314a32556c4e536131517857557852555559314d6e4a325a6b4e5530305078364344613773/6d65726368616e745f69643d616363745f315358767150335777786e704d62596e26636c69656e743d4d414e414745"
-  },
-  {
-    name: "New york sun fade",
-    priceId: "price_3500",
-    image: "https://d1wqzb5bdbcre6.cloudfront.net/4b7cd92bfb097296e9dc49fdffeffe5feccc429ae11a4ec2f94d9cc02099d3d7/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878553168326356417a56336434626e424e596c6c7566475a7358327870646d56664f546c4f55553175566d686163574e485a474e574e567057555664354f577871303032654f5147637a50/6d65726368616e745f69643d616363745f315358767150335777786e704d62596e26636c69656e743d50524f445543545f415049"
-  },
-];
+  <div class="product">
+    <h2>Hoodie</h2>
+    <p>$60.00</p>
 
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    <select class="size-select">
+      <option value="">Select Size</option>
+      <option>S</option><option>M</option>
+      <option>L</option><option>XL</option><option>XXL</option>
+    </select>
 
-function saveCart() {
-  localStorage.setItem("cart", JSON.stringify(cart));
-  document.getElementById("cartCount").innerText = cart.reduce((s,i)=>s+i.qty,0);
-}
+    <button onclick="addToCart('hoodie', 60)">Add to Cart</button>
+  </div>
 
-function renderProducts() {
-  const el = document.getElementById("products");
-  el.innerHTML = "";
-  products.forEach((p,i)=>{
-    el.innerHTML += `
-      <div class="product">
-        <img src="${p.image}">
-        <h3>${p.name}</h3>
-        <select id="size-${i}">
-          <option>S</option><option>M</option>
-          <option>L</option><option>XL</option><option>XXL</option>
-        </select>
-        <button onclick="addToCart(${i})">Add to Cart</button>
-      </div>`;
-  });
-}
+</section>
 
-function addToCart(i) {
-  const size = document.getElementById(`size-${i}`).value;
-  cart.push({ priceId: products[i].priceId, size, qty: 1 });
-  saveCart();
-}
+<section class="cart">
+  <h2>Your Cart</h2>
+  <div id="cart-items"></div>
+  <h3>Total: $<span id="cart-total">0</span></h3>
+  <button id="checkout-btn">Checkout All</button>
+</section>
 
-function toggleCart() {
-  document.getElementById("cartTitle").style.display = "block";
-  const el = document.getElementById("cart");
-  el.innerHTML = cart.map(item => `
-    <div class="cart-item">
-      ${item.size} × ${item.qty}
-    </div>`).join("");
-}
-
-async function checkout() {
-  if (!cart.length) return alert("Cart is empty");
-
-  const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ cart })
-  });
-
-  const { sessionId } = await res.json();
-  stripe.redirectToCheckout({ sessionId });
-}
-
-renderProducts();
-saveCart();
-</script>
-
+<script src="cart.js"></script>
 </body>
 </html>
